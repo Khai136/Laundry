@@ -10,6 +10,14 @@ public class MainDashboard extends JFrame {
     private JPanel contentPanel;
     private CardLayout cardLayout;
     
+    private DashboardHomePanel homePanel;
+    private CustomerPanel customerPanel;
+    private ServicePackagePanel packagePanel;
+    private LaundryOrderPanel orderPanel;
+    private PaymentPanel paymentPanel;
+    private ReportPanel reportPanel;
+    private UserPanel userPanel;
+    
     public void showCard(String cardName) {
         cardLayout.show(contentPanel, cardName);
     }
@@ -142,6 +150,15 @@ public class MainDashboard extends JFrame {
         
         button.addActionListener(e -> {
             cardLayout.show(contentPanel, cardName);
+            if ("home".equals(cardName) && homePanel != null) {
+                homePanel.refreshData();
+            } else if ("orders".equals(cardName) && orderPanel != null) {
+                orderPanel.loadData();
+            } else if ("payments".equals(cardName) && paymentPanel != null) {
+                paymentPanel.loadData();
+            } else if ("reports".equals(cardName) && reportPanel != null) {
+                reportPanel.refreshData();
+            }
         });
         
         return button;
@@ -149,16 +166,27 @@ public class MainDashboard extends JFrame {
     
     private void setupContentPanels() {
         contentPanel.setOpaque(false);
-        // Add all form panels to content panel
-        contentPanel.add(new DashboardHomePanel(), "home");
-        contentPanel.add(new CustomerPanel(), "customers");
-        contentPanel.add(new ServicePackagePanel(), "packages");
-        contentPanel.add(new LaundryOrderPanel(), "orders");
-        contentPanel.add(new PaymentPanel(), "payments");
-        contentPanel.add(new ReportPanel(), "reports");
-        contentPanel.add(new UserPanel(), "users");
+        
+        homePanel = new DashboardHomePanel();
+        customerPanel = new CustomerPanel();
+        packagePanel = new ServicePackagePanel();
+        orderPanel = new LaundryOrderPanel();
+        paymentPanel = new PaymentPanel();
+        reportPanel = new ReportPanel();
+        userPanel = new UserPanel();
+        
+        contentPanel.add(homePanel, "home");
+        contentPanel.add(customerPanel, "customers");
+        contentPanel.add(packagePanel, "packages");
+        contentPanel.add(orderPanel, "orders");
+        contentPanel.add(paymentPanel, "payments");
+        contentPanel.add(reportPanel, "reports");
+        contentPanel.add(userPanel, "users");
         
         cardLayout.show(contentPanel, "home");
+        
+        // Load initial dashboard statistics
+        homePanel.refreshData();
     }
     
     private void setupEventHandlers() {

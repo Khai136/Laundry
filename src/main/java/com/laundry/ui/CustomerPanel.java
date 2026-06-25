@@ -17,6 +17,8 @@ public class CustomerPanel extends JPanel {
     private JTextArea addressArea;
     private JButton saveButton, updateButton, deleteButton, clearButton;
     private Customer selectedCustomer;
+    private JTextField searchField;
+    private JLabel formTitle;
     
     public CustomerPanel() {
         customerDAO = new CustomerDAO();
@@ -24,6 +26,7 @@ public class CustomerPanel extends JPanel {
         setupLayout();
         setupEventHandlers();
         loadCustomers();
+        updateFormMode(false);
     }
     
     private void initComponents() {
@@ -34,6 +37,10 @@ public class CustomerPanel extends JPanel {
         addressArea = new JTextArea(3, 20);
         addressArea.setLineWrap(true);
         addressArea.setWrapStyleWord(true);
+        
+        // Search field
+        searchField = new JTextField(15);
+        searchField.putClientProperty("JTextField.placeholderText", "Cari nama atau telepon...");
         
         // Buttons
         saveButton = new JButton("Simpan");
@@ -82,7 +89,7 @@ public class CustomerPanel extends JPanel {
         
         // Form Header
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
-        JLabel formTitle = new JLabel("Detail Pelanggan");
+        formTitle = new JLabel("Tambah Pelanggan Baru");
         formTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         formTitle.setForeground(new Color(99, 102, 241));
         formPanel.add(formTitle, gbc);
@@ -141,10 +148,16 @@ public class CustomerPanel extends JPanel {
         formContainer.add(formPanel, BorderLayout.NORTH);
         
         // Table Panel (Right)
-        JPanel tableContainer = new JPanel(new BorderLayout());
+        JPanel tableContainer = new JPanel(new BorderLayout(0, 10));
         tableContainer.setBackground(new Color(30, 30, 46));
         tableContainer.putClientProperty("FlatLaf.style", "arc: 24");
         tableContainer.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.setOpaque(false);
+        searchPanel.add(new JLabel("Cari: "));
+        searchPanel.add(searchField);
+        tableContainer.add(searchPanel, BorderLayout.NORTH);
         
         JScrollPane scrollPane = new JScrollPane(customerTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -160,6 +173,95 @@ public class CustomerPanel extends JPanel {
         updateButton.addActionListener(e -> updateCustomer());
         deleteButton.addActionListener(e -> deleteCustomer());
         clearButton.addActionListener(e -> clearForm());
+        
+        // Row filter sorter for live search
+        javax.swing.table.TableRowSorter<DefaultTableModel> sorter = new javax.swing.table.TableRowSorter<>(tableModel);
+        customerTable.setRowSorter(sorter);
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            
+            private void filter() {
+                String text = searchField.getText();
+                if (text.trim().length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text)));
+                }
+            }
+        });
+        
+        // Right click selection & Popup Menu
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem editItem = new JMenuItem("Edit Pelanggan");
+        JMenuItem deleteItem = new JMenuItem("Hapus Pelanggan");
+        JMenuItem copyPhoneItem = new JMenuItem("Salin No. Telepon");
+        
+        popupMenu.add(editItem);
+        popupMenu.add(deleteItem);
+        popupMenu.addSeparator();
+        popupMenu.add(copyPhoneItem);
+        
+        customerTable.setComponentPopupMenu(popupMenu);
+        
+        customerTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (javax.swing.SwingUtilities.isRightMouseButton(e)) {
+                    int r = customerTable.rowAtPoint(e.getPoint());
+                    if (r >= 0 && r < customerTable.getRowCount()) {
+                        customerTable.setRowSelectionInterval(r, r);
+                    } else {
+                        customerTable.clearSelection();
+                    }
+                }
+            }
+        });
+        
+        editItem.addActionListener(e -> {
+            selectCustomer();
+            nameField.requestFocus();
+        });
+        deleteItem.addActionListener(e -> deleteCustomer());
+        copyPhoneItem.addActionListener(e -> {
+            if (selectedCustomer != null) {
+                java.awt.datatransfer.StringSelection stringSelection = new java.awt.datatransfer.StringSelection(selectedCustomer.getPhone());
+                java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(stringSelection, null);
+                JOptionPane.showMessageDialog(CustomerPanel.this, "Nomor telepon disalin ke clipboard!");
+            }
+        });
+        
+        // Keyboard shortcuts
+        customerTable.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+            .put(KeyStroke.getKeyStroke("DELETE"), "deleteCustomer");
+        customerTable.getActionMap().put("deleteCustomer", new AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                deleteCustomer();
+            }
+        });
+        
+        getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW)
+            .put(KeyStroke.getKeyStroke("ESCAPE"), "clearForm");
+        getActionMap().put("clearForm", new AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                clearForm();
+            }
+        });
+        
+        // Enter key in text fields
+        java.awt.event.ActionListener fieldSubmitAction = e -> {
+            if (selectedCustomer == null) {
+                saveCustomer();
+            } else {
+                updateCustomer();
+            }
+        };
+        nameField.addActionListener(fieldSubmitAction);
+        phoneField.addActionListener(fieldSubmitAction);
+        emailField.addActionListener(fieldSubmitAction);
         
         customerTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -228,12 +330,14 @@ public class CustomerPanel extends JPanel {
         addressArea.setText("");
         selectedCustomer = null;
         customerTable.clearSelection();
+        updateFormMode(false);
     }
     
     private void selectCustomer() {
         int selectedRow = customerTable.getSelectedRow();
         if (selectedRow >= 0) {
-            int customerId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            int modelRow = customerTable.convertRowIndexToModel(selectedRow);
+            int customerId = (Integer) tableModel.getValueAt(modelRow, 0);
             selectedCustomer = customerDAO.findById(customerId);
             
             if (selectedCustomer != null) {
@@ -241,7 +345,26 @@ public class CustomerPanel extends JPanel {
                 phoneField.setText(selectedCustomer.getPhone());
                 emailField.setText(selectedCustomer.getEmail());
                 addressArea.setText(selectedCustomer.getAddress());
+                updateFormMode(true);
             }
+        }
+    }
+    
+    private void updateFormMode(boolean isEditMode) {
+        if (isEditMode) {
+            if (selectedCustomer != null) {
+                formTitle.setText("Edit Pelanggan (ID: " + selectedCustomer.getId() + ")");
+            }
+            formTitle.setForeground(new Color(249, 115, 22)); // Orange
+            saveButton.setEnabled(false);
+            updateButton.setEnabled(true);
+            deleteButton.setEnabled(true);
+        } else {
+            formTitle.setText("Tambah Pelanggan Baru");
+            formTitle.setForeground(new Color(99, 102, 241)); // Indigo
+            saveButton.setEnabled(true);
+            updateButton.setEnabled(false);
+            deleteButton.setEnabled(false);
         }
     }
     

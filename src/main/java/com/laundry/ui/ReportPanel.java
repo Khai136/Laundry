@@ -20,6 +20,7 @@ public class ReportPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JComboBox<String> reportTypeCombo;
     private JButton generateButton;
+    private JButton exportButton;
     private JLabel totalOrdersLabel, totalRevenueLabel, pendingOrdersLabel;
     
     public ReportPanel() {
@@ -39,6 +40,9 @@ public class ReportPanel extends JPanel {
         
         // Generate button
         generateButton = new JButton("Generate Report");
+        
+        // Export button
+        exportButton = new JButton("Export CSV");
         
         // Summary labels
         totalOrdersLabel = new JLabel("Total Orders: 0");
@@ -79,6 +83,11 @@ public class ReportPanel extends JPanel {
         generateButton.setBackground(new Color(99, 102, 241));
         generateButton.setForeground(Color.WHITE);
         controlPanel.add(generateButton);
+        
+        exportButton.putClientProperty("JButton.buttonType", "roundRect");
+        exportButton.setBackground(new Color(34, 197, 94));
+        exportButton.setForeground(Color.WHITE);
+        controlPanel.add(exportButton);
         
         // Summary Panel (Dashboard Cards)
         JPanel summaryPanel = new JPanel(new GridLayout(1, 3, 25, 0));
@@ -140,6 +149,7 @@ public class ReportPanel extends JPanel {
     private void setupEventHandlers() {
         generateButton.addActionListener(e -> generateReport());
         reportTypeCombo.addActionListener(e -> generateReport());
+        exportButton.addActionListener(e -> exportToCSV());
     }
     
     private void generateReport() {
@@ -285,5 +295,45 @@ public class ReportPanel extends JPanel {
         totalOrdersLabel.setText("Total Orders: " + totalOrders);
         totalRevenueLabel.setText("Total Revenue: Rp " + totalRevenue);
         pendingOrdersLabel.setText("Pending Orders: " + pendingOrders);
+    }
+    
+    private void exportToCSV() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle("Simpan Laporan");
+        
+        String reportName = reportTypeCombo.getSelectedItem().toString().toLowerCase().replace(" ", "_");
+        fileChooser.setSelectedFile(new java.io.File("laporan_" + reportName + ".csv"));
+        
+        int userSelection = fileChooser.showSaveDialog(this);
+        if (userSelection == JFileChooser.APPROVE_OPTION) {
+            java.io.File fileToSave = fileChooser.getSelectedFile();
+            try (java.io.FileWriter fw = new java.io.FileWriter(fileToSave)) {
+                // Write column headers
+                for (int i = 0; i < tableModel.getColumnCount(); i++) {
+                    fw.write(tableModel.getColumnName(i));
+                    if (i < tableModel.getColumnCount() - 1) fw.write(",");
+                }
+                fw.write("\n");
+                
+                // Write row data
+                for (int i = 0; i < tableModel.getRowCount(); i++) {
+                    for (int j = 0; j < tableModel.getColumnCount(); j++) {
+                        Object val = tableModel.getValueAt(i, j);
+                        String str = (val == null) ? "" : val.toString().replace(",", ";"); // replace comma to avoid breaking CSV
+                        fw.write(str);
+                        if (j < tableModel.getColumnCount() - 1) fw.write(",");
+                    }
+                    fw.write("\n");
+                }
+                JOptionPane.showMessageDialog(this, "Laporan berhasil diexport ke:\n" + fileToSave.getAbsolutePath(), "Sukses", JOptionPane.INFORMATION_MESSAGE);
+            } catch (java.io.IOException e) {
+                JOptionPane.showMessageDialog(this, "Gagal mengeksport file: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    public void refreshData() {
+        loadSummary();
+        generateReport();
     }
 }

@@ -200,7 +200,7 @@ public class PaymentPanel extends JPanel {
         return true;
     }
     
-    private void loadData() {
+    public void loadData() {
         loadUnpaidOrders();
         loadPayments();
     }

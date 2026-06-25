@@ -84,4 +84,39 @@ public class PaymentDAO {
         }
         return null;
     }
+    
+    public java.math.BigDecimal getTodayRevenue() {
+        String sql = "SELECT SUM(amount) FROM payments WHERE DATE(payment_date) = CURDATE()";
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                java.math.BigDecimal val = rs.getBigDecimal(1);
+                return val != null ? val : java.math.BigDecimal.ZERO;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return java.math.BigDecimal.ZERO;
+    }
+    
+    public List<Object[]> getWeeklyRevenue() {
+        List<Object[]> data = new ArrayList<>();
+        String sql = "SELECT DATE(payment_date) as p_date, SUM(amount) as total " +
+                     "FROM payments " +
+                     "WHERE payment_date >= DATE_SUB(CURDATE(), INTERVAL 6 DAY) " +
+                     "GROUP BY DATE(payment_date) " +
+                     "ORDER BY p_date ASC";
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                data.add(new Object[]{rs.getDate("p_date"), rs.getBigDecimal("total")});
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
 }
+

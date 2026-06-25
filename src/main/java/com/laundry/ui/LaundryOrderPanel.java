@@ -28,6 +28,7 @@ public class LaundryOrderPanel extends JPanel {
     private JComboBox<String> statusCombo;
     private JButton saveButton, updateStatusButton, clearButton;
     private LaundryOrder selectedOrder;
+    private JTextField searchField;
     
     public LaundryOrderPanel() {
         orderDAO = new LaundryOrderDAO();
@@ -52,6 +53,9 @@ public class LaundryOrderPanel extends JPanel {
         
         String[] statuses = {"pending", "processing", "ready", "completed"};
         statusCombo = new JComboBox<>(statuses);
+        
+        searchField = new JTextField(15);
+        searchField.putClientProperty("JTextField.placeholderText", "Cari order...");
         
         // Buttons
         saveButton = new JButton("Simpan Order");
@@ -163,9 +167,15 @@ public class LaundryOrderPanel extends JPanel {
         formContainer.add(formPanel, BorderLayout.NORTH);
         
         // Table Panel (Right)
-        JPanel tableContainer = new JPanel(new BorderLayout());
+        JPanel tableContainer = new JPanel(new BorderLayout(0, 10));
         tableContainer.putClientProperty("FlatLaf.style", "arc: 20; background: @background");
         tableContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        searchPanel.setOpaque(false);
+        searchPanel.add(new JLabel("Cari: "));
+        searchPanel.add(searchField);
+        tableContainer.add(searchPanel, BorderLayout.NORTH);
         
         JScrollPane scrollPane = new JScrollPane(orderTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -189,6 +199,24 @@ public class LaundryOrderPanel extends JPanel {
         });
         
         packageCombo.addActionListener(e -> calculateTotalPrice());
+        
+        // Row filter sorter for live search
+        javax.swing.table.TableRowSorter<DefaultTableModel> sorter = new javax.swing.table.TableRowSorter<>(tableModel);
+        orderTable.setRowSorter(sorter);
+        searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
+            public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            public void changedUpdate(javax.swing.event.DocumentEvent e) { filter(); }
+            
+            private void filter() {
+                String text = searchField.getText();
+                if (text.trim().length() == 0) {
+                    sorter.setRowFilter(null);
+                } else {
+                    sorter.setRowFilter(RowFilter.regexFilter("(?i)" + java.util.regex.Pattern.quote(text)));
+                }
+            }
+        });
         
         orderTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
@@ -246,7 +274,8 @@ public class LaundryOrderPanel extends JPanel {
     private void selectOrder() {
         int selectedRow = orderTable.getSelectedRow();
         if (selectedRow >= 0) {
-            int orderId = (Integer) tableModel.getValueAt(selectedRow, 0);
+            int modelRow = orderTable.convertRowIndexToModel(selectedRow);
+            int orderId = (Integer) tableModel.getValueAt(modelRow, 0);
             selectedOrder = orderDAO.findById(orderId);
             
             if (selectedOrder != null) {
@@ -316,7 +345,7 @@ public class LaundryOrderPanel extends JPanel {
         return true;
     }
     
-    private void loadData() {
+    public void loadData() {
         loadCustomers();
         loadPackages();
         loadOrders();

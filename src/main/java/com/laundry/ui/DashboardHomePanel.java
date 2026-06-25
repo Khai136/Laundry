@@ -13,6 +13,11 @@ import javax.swing.*;
 import java.awt.*;
 
 public class DashboardHomePanel extends JPanel {
+    private JLabel activeOrdersValueLabel;
+    private JLabel readyOrdersValueLabel;
+    private JLabel todayRevenueValueLabel;
+    private JLabel newCustomersValueLabel;
+    private XYSeries revenueSeries;
 
     public DashboardHomePanel() {
         initComponents();
@@ -48,14 +53,19 @@ public class DashboardHomePanel extends JPanel {
         headerPanel.add(titleGroup, BorderLayout.WEST);
 
         // --- TOP STATS ---
+        activeOrdersValueLabel = new JLabel("0");
+        readyOrdersValueLabel = new JLabel("0");
+        todayRevenueValueLabel = new JLabel("Rp 0");
+        newCustomersValueLabel = new JLabel("0");
+
         JPanel statsPanel = new JPanel(new GridLayout(1, 4, 20, 0));
         statsPanel.setOpaque(false);
         statsPanel.setPreferredSize(new Dimension(0, 120));
         
-        statsPanel.add(createMiniCard("Order Aktif", "12", new Color(99, 102, 241)));
-        statsPanel.add(createMiniCard("Siap Ambil", "5", new Color(34, 197, 94)));
-        statsPanel.add(createMiniCard("Pendapatan Hari Ini", "Rp 450.000", new Color(249, 115, 22)));
-        statsPanel.add(createMiniCard("Pelanggan Baru", "3", new Color(168, 85, 247)));
+        statsPanel.add(createMiniCard("Order Aktif", activeOrdersValueLabel, new Color(99, 102, 241)));
+        statsPanel.add(createMiniCard("Siap Ambil", readyOrdersValueLabel, new Color(34, 197, 94)));
+        statsPanel.add(createMiniCard("Pendapatan Hari Ini", todayRevenueValueLabel, new Color(249, 115, 22)));
+        statsPanel.add(createMiniCard("Pelanggan Baru", newCustomersValueLabel, new Color(168, 85, 247)));
 
         // --- CHART & RECENT AREA ---
         JPanel mainContent = new JPanel(new BorderLayout(20, 20));
@@ -108,7 +118,7 @@ public class DashboardHomePanel extends JPanel {
         add(mainContent, BorderLayout.CENTER);
     }
 
-    private JPanel createMiniCard(String title, String value, Color accent) {
+    private JPanel createMiniCard(String title, JLabel valueLabel, Color accent) {
         JPanel card = new JPanel(new BorderLayout(0, 5));
         card.setBackground(new Color(30, 30, 46));
         card.putClientProperty("FlatLaf.style", "arc: 24");
@@ -121,12 +131,11 @@ public class DashboardHomePanel extends JPanel {
         t.setFont(new Font("Segoe UI", Font.BOLD, 11));
         t.setForeground(new Color(148, 163, 184));
         
-        JLabel v = new JLabel(value);
-        v.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        v.setForeground(Color.WHITE);
+        valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        valueLabel.setForeground(Color.WHITE);
         
         card.add(t, BorderLayout.NORTH);
-        card.add(v, BorderLayout.CENTER);
+        card.add(valueLabel, BorderLayout.CENTER);
         return card;
     }
 
@@ -155,17 +164,12 @@ public class DashboardHomePanel extends JPanel {
     }
 
     private ChartPanel createRevenueChart() {
-        XYSeries series = new XYSeries("Revenue");
-        series.add(1, 150000);
-        series.add(2, 280000);
-        series.add(3, 210000);
-        series.add(4, 450000);
-        series.add(5, 390000);
-        series.add(6, 520000);
-        series.add(7, 480000);
+        revenueSeries = new XYSeries("Revenue");
+        // default dummy points
+        revenueSeries.add(1, 0);
 
         XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(series);
+        dataset.addSeries(revenueSeries);
 
         JFreeChart chart = ChartFactory.createXYLineChart(
                 null, null, null, dataset,
@@ -187,5 +191,38 @@ public class DashboardHomePanel extends JPanel {
         chartPanel.setOpaque(false);
         chartPanel.setBackground(new Color(30, 30, 46));
         return chartPanel;
+    }
+    
+    public void refreshData() {
+        com.laundry.dao.LaundryOrderDAO orderDAO = new com.laundry.dao.LaundryOrderDAO();
+        com.laundry.dao.PaymentDAO paymentDAO = new com.laundry.dao.PaymentDAO();
+        com.laundry.dao.CustomerDAO customerDAO = new com.laundry.dao.CustomerDAO();
+        
+        int activeOrders = orderDAO.getActiveOrdersCount();
+        int readyOrders = orderDAO.getReadyOrdersCount();
+        java.math.BigDecimal todayRevenue = paymentDAO.getTodayRevenue();
+        int newCustomers = customerDAO.getNewCustomersTodayCount();
+        
+        activeOrdersValueLabel.setText(String.valueOf(activeOrders));
+        readyOrdersValueLabel.setText(String.valueOf(readyOrders));
+        
+        java.text.DecimalFormat df = new java.text.DecimalFormat("#,##0");
+        todayRevenueValueLabel.setText("Rp " + df.format(todayRevenue));
+        newCustomersValueLabel.setText(String.valueOf(newCustomers));
+        
+        // Update weekly revenue chart
+        revenueSeries.clear();
+        java.util.List<Object[]> weeklyData = paymentDAO.getWeeklyRevenue();
+        
+        if (weeklyData.isEmpty()) {
+            revenueSeries.add(1, 0);
+            revenueSeries.add(2, 0);
+        } else {
+            int index = 1;
+            for (Object[] row : weeklyData) {
+                java.math.BigDecimal amount = (java.math.BigDecimal) row[1];
+                revenueSeries.add(index++, amount.doubleValue());
+            }
+        }
     }
 }

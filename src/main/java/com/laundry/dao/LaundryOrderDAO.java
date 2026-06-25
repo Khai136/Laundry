@@ -110,4 +110,33 @@ public class LaundryOrderDAO {
         }
         return null;
     }
+    
+    public int getActiveOrdersCount() {
+        String sql = "SELECT COUNT(*) FROM laundry_orders WHERE status != 'completed'";
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    
+    public int getReadyOrdersCount() {
+        String sql = "SELECT COUNT(*) FROM laundry_orders WHERE status = 'ready'";
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
+

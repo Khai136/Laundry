@@ -137,4 +137,20 @@ public class CustomerDAO {
         }
         return customers;
     }
+    
+    public int getNewCustomersTodayCount() {
+        String sql = "SELECT COUNT(*) FROM customers WHERE DATE(created_at) = CURDATE()";
+        try (Connection conn = DatabaseManager.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Error saat menghitung pelanggan baru: " + e.getMessage());
+        }
+        return 0;
+    }
 }
+
