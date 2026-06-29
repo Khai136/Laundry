@@ -30,6 +30,7 @@ public class DashboardHomePanel extends JPanel {
 
     private void setupLayout() {
         setLayout(new BorderLayout(20, 20));
+        setBackground(new Color(245, 247, 250));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // --- WELCOME HEADER ---
@@ -38,11 +39,11 @@ public class DashboardHomePanel extends JPanel {
         
         JLabel welcomeLabel = new JLabel("Halo, Selamat Datang Kembali!");
         welcomeLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 28));
-        welcomeLabel.setForeground(Color.WHITE);
-        
+        welcomeLabel.setForeground(new Color(15, 23, 42));
+
         JLabel dateLabel = new JLabel("Berikut adalah ringkasan bisnis laundry Anda hari ini.");
         dateLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        dateLabel.setForeground(new Color(148, 163, 184));
+        dateLabel.setForeground(new Color(100, 116, 139));
         
         JPanel titleGroup = new JPanel();
         titleGroup.setLayout(new BoxLayout(titleGroup, BoxLayout.Y_AXIS));
@@ -73,13 +74,13 @@ public class DashboardHomePanel extends JPanel {
 
         // Chart Card
         JPanel chartCard = new JPanel(new BorderLayout());
-        chartCard.setBackground(new Color(30, 30, 46));
+        chartCard.setBackground(Color.WHITE);
         chartCard.putClientProperty("FlatLaf.style", "arc: 24");
         chartCard.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         JLabel chartTitle = new JLabel("Tren Pendapatan Mingguan");
         chartTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        chartTitle.setForeground(new Color(148, 163, 184));
+        chartTitle.setForeground(new Color(71, 85, 105));
         chartCard.add(chartTitle, BorderLayout.NORTH);
         
         chartCard.add(createRevenueChart(), BorderLayout.CENTER);
@@ -90,21 +91,21 @@ public class DashboardHomePanel extends JPanel {
         JPanel actionPanel = new JPanel();
         actionPanel.setLayout(new BoxLayout(actionPanel, BoxLayout.Y_AXIS));
         actionPanel.setPreferredSize(new Dimension(250, 0));
-        actionPanel.setBackground(new Color(30, 30, 46));
+        actionPanel.setBackground(Color.WHITE);
         actionPanel.putClientProperty("FlatLaf.style", "arc: 24");
         actionPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
         JLabel actionTitle = new JLabel("Aksi Cepat");
         actionTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
-        actionTitle.setForeground(new Color(148, 163, 184));
+        actionTitle.setForeground(new Color(71, 85, 105));
         actionPanel.add(actionTitle);
         actionPanel.add(Box.createVerticalStrut(20));
         
         actionPanel.add(createActionButton("Buat Order Baru", new Color(99, 102, 241), e -> navigateTo("orders")));
         actionPanel.add(Box.createVerticalStrut(10));
-        actionPanel.add(createActionButton("Tambah Pelanggan", new Color(30, 30, 46), e -> navigateTo("customers")));
+        actionPanel.add(createActionButton("Tambah Pelanggan", Color.WHITE, e -> navigateTo("customers")));
         actionPanel.add(Box.createVerticalStrut(10));
-        actionPanel.add(createActionButton("Cetak Laporan", new Color(30, 30, 46), e -> navigateTo("reports")));
+        actionPanel.add(createActionButton("Cetak Laporan", Color.WHITE, e -> navigateTo("reports")));
 
         mainContent.add(actionPanel, BorderLayout.EAST);
 
@@ -120,7 +121,7 @@ public class DashboardHomePanel extends JPanel {
 
     private JPanel createMiniCard(String title, JLabel valueLabel, Color accent) {
         JPanel card = new JPanel(new BorderLayout(0, 5));
-        card.setBackground(new Color(30, 30, 46));
+        card.setBackground(Color.WHITE);
         card.putClientProperty("FlatLaf.style", "arc: 24");
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createMatteBorder(0, 0, 4, 0, accent),
@@ -129,10 +130,10 @@ public class DashboardHomePanel extends JPanel {
         
         JLabel t = new JLabel(title);
         t.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        t.setForeground(new Color(148, 163, 184));
+        t.setForeground(new Color(71, 85, 105));
         
         valueLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        valueLabel.setForeground(Color.WHITE);
+        valueLabel.setForeground(new Color(15, 23, 42));
         
         card.add(t, BorderLayout.NORTH);
         card.add(valueLabel, BorderLayout.CENTER);
@@ -145,11 +146,13 @@ public class DashboardHomePanel extends JPanel {
         btn.setPreferredSize(new Dimension(0, 45));
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setBackground(bg);
-        btn.setForeground(Color.WHITE);
-        btn.putClientProperty("JButton.buttonType", "roundRect");
-        if(bg.equals(new Color(30, 30, 46))) {
+        if (bg.equals(Color.WHITE)) {
+            btn.setForeground(new Color(99, 102, 241));
             btn.setBorder(BorderFactory.createLineBorder(new Color(99, 102, 241), 1));
+        } else {
+            btn.setForeground(Color.WHITE);
         }
+        btn.putClientProperty("JButton.buttonType", "roundRect");
         if (listener != null) {
             btn.addActionListener(listener);
         }
@@ -175,21 +178,21 @@ public class DashboardHomePanel extends JPanel {
                 null, null, null, dataset,
                 PlotOrientation.VERTICAL, false, true, false);
 
-        chart.setBackgroundPaint(new Color(30, 30, 46));
+        chart.setBackgroundPaint(Color.WHITE);
         XYPlot plot = chart.getXYPlot();
-        plot.setBackgroundPaint(new Color(30, 30, 46));
-        plot.setDomainGridlinePaint(new Color(45, 45, 63));
-        plot.setRangeGridlinePaint(new Color(45, 45, 63));
+        plot.setBackgroundPaint(Color.WHITE);
+        plot.setDomainGridlinePaint(new Color(226, 232, 240));
+        plot.setRangeGridlinePaint(new Color(226, 232, 240));
         plot.setOutlineVisible(false);
-
+        
         XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
         renderer.setSeriesPaint(0, new Color(99, 102, 241));
         renderer.setSeriesStroke(0, new BasicStroke(3.0f));
         plot.setRenderer(renderer);
-
+        
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setOpaque(false);
-        chartPanel.setBackground(new Color(30, 30, 46));
+        chartPanel.setBackground(Color.WHITE);
         return chartPanel;
     }
     

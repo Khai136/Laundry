@@ -71,7 +71,7 @@ public class ReportPanel extends JPanel {
         headerPanel.setOpaque(false);
         JLabel titleLabel = new JLabel("Laporan & Statistik");
         titleLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 28));
-        titleLabel.setForeground(Color.WHITE);
+        titleLabel.setForeground(new Color(15, 23, 42));
         headerPanel.add(titleLabel, BorderLayout.WEST);
         
         // Control Panel (Filter)
@@ -100,7 +100,7 @@ public class ReportPanel extends JPanel {
         
         // Table Panel
         JPanel tableContainer = new JPanel(new BorderLayout());
-        tableContainer.setBackground(new Color(30, 30, 46));
+        tableContainer.setBackground(Color.WHITE);
         tableContainer.putClientProperty("FlatLaf.style", "arc: 24");
         tableContainer.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
@@ -126,7 +126,7 @@ public class ReportPanel extends JPanel {
     
     private JPanel createSummaryCard(String title, JLabel valueLabel, Color accentColor) {
         JPanel card = new JPanel(new BorderLayout());
-        card.setBackground(new Color(30, 30, 46));
+        card.setBackground(Color.WHITE);
         card.putClientProperty("FlatLaf.style", "arc: 24");
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createMatteBorder(0, 8, 0, 0, accentColor),
@@ -135,10 +135,10 @@ public class ReportPanel extends JPanel {
         
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        titleLabel.setForeground(new Color(148, 163, 184));
+        titleLabel.setForeground(new Color(71, 85, 105));
         
         valueLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 22));
-        valueLabel.setForeground(Color.WHITE);
+        valueLabel.setForeground(new Color(15, 23, 42));
         
         card.add(titleLabel, BorderLayout.NORTH);
         card.add(valueLabel, BorderLayout.CENTER);

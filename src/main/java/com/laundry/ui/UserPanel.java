@@ -31,7 +31,7 @@ public class UserPanel extends JPanel {
         fullNameField = new JTextField(20);
         passwordField = new JTextField(20);
         
-        String[] roles = {"admin", "operator"};
+        String[] roles = {"bos", "karyawan"};
         roleCombo = new JComboBox<>(roles);
         
         // Buttons

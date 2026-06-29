@@ -58,18 +58,32 @@ public class ServicePackagePanel extends JPanel {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
+        setBackground(new Color(245, 247, 250));
+
         // Header
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
         JLabel titleLabel = new JLabel("Paket Layanan");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        headerPanel.add(titleLabel, BorderLayout.WEST);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(15, 23, 42));
+        JLabel subtitleLabel = new JLabel("Kelola semua paket layanan laundry");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        subtitleLabel.setForeground(new Color(100, 116, 139));
+        JPanel titleGroup = new JPanel();
+        titleGroup.setLayout(new BoxLayout(titleGroup, BoxLayout.Y_AXIS));
+        titleGroup.setOpaque(false);
+        titleGroup.add(titleLabel);
+        titleGroup.add(subtitleLabel);
+        headerPanel.add(titleGroup, BorderLayout.WEST);
         
-        // Form Panel (Left)
+        // Form Panel (Left) — white card
         JPanel formContainer = new JPanel(new BorderLayout());
-        formContainer.setPreferredSize(new Dimension(350, 0));
-        formContainer.putClientProperty("FlatLaf.style", "arc: 20; background: darken(@background, 3%)");
-        formContainer.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        formContainer.setPreferredSize(new Dimension(300, 0));
+        formContainer.setBackground(Color.WHITE);
+        formContainer.putClientProperty("FlatLaf.style", "arc: 20");
+        formContainer.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240), 1, true),
+            BorderFactory.createEmptyBorder(24, 20, 20, 20)));
         
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
@@ -81,8 +95,15 @@ public class ServicePackagePanel extends JPanel {
         // Form Header
         gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
         JLabel formTitle = new JLabel("Detail Paket");
-        formTitle.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        formTitle.setFont(new Font("Segoe UI", Font.BOLD, 15));
+        formTitle.setForeground(new Color(99, 102, 241));
         formPanel.add(formTitle, gbc);
+
+        gbc.gridy++; gbc.insets = new Insets(4, 0, 1, 0);
+        JSeparator sep = new JSeparator();
+        sep.setForeground(new Color(226, 232, 240));
+        formPanel.add(sep, gbc);
+        gbc.insets = new Insets(8, 8, 8, 8);
         
         gbc.gridwidth = 1;
         // Package Name
@@ -137,13 +158,17 @@ public class ServicePackagePanel extends JPanel {
         
         formContainer.add(formPanel, BorderLayout.NORTH);
         
-        // Table Panel (Right)
-        JPanel tableContainer = new JPanel(new BorderLayout());
-        tableContainer.putClientProperty("FlatLaf.style", "arc: 20; background: @background");
-        tableContainer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+        // Table Panel (Right) — white card
+        JPanel tableContainer = new JPanel(new BorderLayout(0, 10));
+        tableContainer.setBackground(Color.WHITE);
+        tableContainer.putClientProperty("FlatLaf.style", "arc: 20");
+        tableContainer.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240), 1, true),
+            BorderFactory.createEmptyBorder(16, 16, 16, 16)));
+
         JScrollPane scrollPane = new JScrollPane(packageTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setBackground(Color.WHITE);
         tableContainer.add(scrollPane, BorderLayout.CENTER);
         
         add(headerPanel, BorderLayout.NORTH);
@@ -156,6 +181,13 @@ public class ServicePackagePanel extends JPanel {
         updateButton.addActionListener(e -> updatePackage());
         deleteButton.addActionListener(e -> deletePackage());
         clearButton.addActionListener(e -> clearForm());
+
+        // Numeric sorter so ID column sorts as integers
+        javax.swing.table.TableRowSorter<DefaultTableModel> sorter =
+            new javax.swing.table.TableRowSorter<>(tableModel);
+        sorter.setComparator(0, (a, b) -> Integer.compare((Integer) a, (Integer) b));
+        packageTable.setRowSorter(sorter);
+        sorter.toggleSortOrder(0); // default sort by ID ascending
         
         packageTable.getSelectionModel().addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {

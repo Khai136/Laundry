@@ -62,23 +62,33 @@ public class CustomerPanel extends JPanel {
     
     private void setupLayout() {
         setLayout(new BorderLayout(20, 20));
-        setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        
+        setBackground(new Color(245, 247, 250));
+
         // Header
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setOpaque(false);
         JLabel titleLabel = new JLabel("Data Pelanggan");
-        titleLabel.setFont(new Font("Segoe UI Semibold", Font.BOLD, 28));
-        titleLabel.setForeground(Color.WHITE);
-        headerPanel.add(titleLabel, BorderLayout.WEST);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        titleLabel.setForeground(new Color(15, 23, 42));
+        JLabel subtitleLabel = new JLabel("Kelola data pelanggan laundry Anda");
+        subtitleLabel.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        subtitleLabel.setForeground(new Color(100, 116, 139));
+        JPanel titleGroup = new JPanel();
+        titleGroup.setLayout(new BoxLayout(titleGroup, BoxLayout.Y_AXIS));
+        titleGroup.setOpaque(false);
+        titleGroup.add(titleLabel);
+        titleGroup.add(subtitleLabel);
+        headerPanel.add(titleGroup, BorderLayout.WEST);
         
-        // Form Panel (Left)
+        // Form Panel (Left) — white card
         JPanel formContainer = new JPanel(new BorderLayout());
-        formContainer.setPreferredSize(new Dimension(350, 0));
-        formContainer.setBackground(new Color(30, 30, 46));
-        formContainer.putClientProperty("FlatLaf.style", "arc: 24");
-        formContainer.setBorder(BorderFactory.createEmptyBorder(30, 25, 30, 25));
+        formContainer.setPreferredSize(new Dimension(300, 0));
+        formContainer.setBackground(Color.WHITE);
+        formContainer.putClientProperty("FlatLaf.style", "arc: 20");
+        formContainer.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240), 1, true),
+            BorderFactory.createEmptyBorder(24, 20, 20, 20)));
         
         JPanel formPanel = new JPanel(new GridBagLayout());
         formPanel.setOpaque(false);
@@ -147,20 +157,23 @@ public class CustomerPanel extends JPanel {
         
         formContainer.add(formPanel, BorderLayout.NORTH);
         
-        // Table Panel (Right)
+        // Table Panel (Right) — white card
         JPanel tableContainer = new JPanel(new BorderLayout(0, 10));
-        tableContainer.setBackground(new Color(30, 30, 46));
-        tableContainer.putClientProperty("FlatLaf.style", "arc: 24");
-        tableContainer.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        
+        tableContainer.setBackground(Color.WHITE);
+        tableContainer.putClientProperty("FlatLaf.style", "arc: 20");
+        tableContainer.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(226, 232, 240), 1, true),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         searchPanel.setOpaque(false);
         searchPanel.add(new JLabel("Cari: "));
         searchPanel.add(searchField);
         tableContainer.add(searchPanel, BorderLayout.NORTH);
-        
+
         JScrollPane scrollPane = new JScrollPane(customerTable);
         scrollPane.setBorder(BorderFactory.createEmptyBorder());
+        scrollPane.setBackground(Color.WHITE);
         tableContainer.add(scrollPane, BorderLayout.CENTER);
         
         add(headerPanel, BorderLayout.NORTH);
@@ -174,9 +187,13 @@ public class CustomerPanel extends JPanel {
         deleteButton.addActionListener(e -> deleteCustomer());
         clearButton.addActionListener(e -> clearForm());
         
-        // Row filter sorter for live search
-        javax.swing.table.TableRowSorter<DefaultTableModel> sorter = new javax.swing.table.TableRowSorter<>(tableModel);
+        // Numeric sorter so ID column sorts as integers
+        javax.swing.table.TableRowSorter<DefaultTableModel> sorter =
+            new javax.swing.table.TableRowSorter<>(tableModel);
+        sorter.setComparator(0, (a, b) -> Integer.compare((Integer) a, (Integer) b));
         customerTable.setRowSorter(sorter);
+        sorter.toggleSortOrder(0); // default sort by ID ascending
+
         searchField.getDocument().addDocumentListener(new javax.swing.event.DocumentListener() {
             public void insertUpdate(javax.swing.event.DocumentEvent e) { filter(); }
             public void removeUpdate(javax.swing.event.DocumentEvent e) { filter(); }

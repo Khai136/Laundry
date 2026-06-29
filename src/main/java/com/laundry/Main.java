@@ -13,42 +13,51 @@ public class Main {
     public static void main(String[] args) {
         // Set Look and Feel
         try {
-            com.formdev.flatlaf.themes.FlatMacDarkLaf.setup();
-            
-            // --- PREMIUM GLOBAL STYLING ---
-            
-            // Colors
-            UIManager.put("Component.accentColor", "#6366f1"); // Modern Indigo
-            UIManager.put("Component.focusColor", "#818cf8");
-            UIManager.put("Selection.background", "#4f46e5");
-            UIManager.put("Selection.foreground", "#ffffff");
-            
+            com.formdev.flatlaf.themes.FlatMacLightLaf.setup();
+
+            // --- PREMIUM GLOBAL STYLING (Light Theme) ---
+
+            // Colors — indigo accent on white base
+            UIManager.put("Component.accentColor", new java.awt.Color(99, 102, 241));
+            UIManager.put("Component.focusColor",  new java.awt.Color(129, 140, 248));
+            UIManager.put("Selection.background",  new java.awt.Color(79,  70, 229));
+            UIManager.put("Selection.foreground",  new java.awt.Color(255, 255, 255));
+
+            // Global background
+            UIManager.put("Panel.background",      new java.awt.Color(245, 247, 250));
+            UIManager.put("control",               new java.awt.Color(245, 247, 250));
+
             // Arcs (Rounded Corners)
-            UIManager.put("Button.arc", 12);
-            UIManager.put("Component.arc", 12);
-            UIManager.put("TextComponent.arc", 12);
-            UIManager.put("CheckBox.arc", 4);
-            UIManager.put("ProgressBar.arc", 12);
-            
+            UIManager.put("Button.arc",            14);
+            UIManager.put("Component.arc",         12);
+            UIManager.put("TextComponent.arc",     10);
+            UIManager.put("CheckBox.arc",          6);
+            UIManager.put("ProgressBar.arc",       12);
+
             // Fonts
-            UIManager.put("defaultFont", new Font("Segoe UI Semibold", Font.PLAIN, 13));
-            
+            UIManager.put("defaultFont", new Font("Segoe UI", Font.PLAIN, 13));
+
             // Table
-            UIManager.put("Table.intercellSpacing", new Dimension(0, 0));
-            UIManager.put("Table.rowHeight", 40);
-            UIManager.put("TableHeader.height", 45);
-            UIManager.put("TableHeader.background", "#1e1e2e");
-            UIManager.put("Table.alternateRowColor", "#242435");
+            UIManager.put("Table.intercellSpacing",   new Dimension(0, 0));
+            UIManager.put("Table.rowHeight",           40);
+            UIManager.put("TableHeader.height",        45);
+            UIManager.put("TableHeader.background",    new java.awt.Color(241, 245, 249));
+            UIManager.put("TableHeader.foreground",    new java.awt.Color(15,  23,  42));
+            UIManager.put("Table.alternateRowColor",   new java.awt.Color(248, 250, 252));
             UIManager.put("Table.showHorizontalLines", true);
-            UIManager.put("Table.gridColor", "#2d2d3f");
-            
+            UIManager.put("Table.gridColor",           new java.awt.Color(226, 232, 240));
+            UIManager.put("Table.background",          new java.awt.Color(255, 255, 255));
+            UIManager.put("Table.foreground",          new java.awt.Color(15,  23,  42));
+
             // ScrollBar
-            UIManager.put("ScrollBar.thumbArc", 999);
+            UIManager.put("ScrollBar.thumbArc",    999);
             UIManager.put("ScrollBar.thumbInsets", new Insets(2, 2, 2, 2));
-            UIManager.put("ScrollBar.track", "#1a1a27");
-            
+            UIManager.put("ScrollBar.thumb",       new java.awt.Color(203, 213, 225));
+            UIManager.put("ScrollBar.track",       new java.awt.Color(248, 250, 252));
+
             // Menu
-            UIManager.put("MenuItem.selectionBackground", "#4f46e5");
+            UIManager.put("MenuItem.selectionBackground", new java.awt.Color(79, 70, 229));
+            UIManager.put("Menu.background",             new java.awt.Color(255, 255, 255));
             
         } catch (Exception e) {
             e.printStackTrace();

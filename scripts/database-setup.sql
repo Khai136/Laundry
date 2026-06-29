@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     username VARCHAR(50) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     full_name VARCHAR(100) NOT NULL,
-    role VARCHAR(20) DEFAULT 'admin',
+    role VARCHAR(20) DEFAULT 'karyawan',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -61,9 +61,18 @@ CREATE TABLE IF NOT EXISTS payments (
     FOREIGN KEY (order_id) REFERENCES laundry_orders(id) ON DELETE CASCADE
 );
 
--- Insert default admin user
-INSERT IGNORE INTO users (username, password, full_name, role) 
-VALUES ('admin', 'admin123', 'Administrator', 'admin');
+-- Insert default users (bos & karyawan)
+-- Bos (pemilik) — akses penuh
+INSERT IGNORE INTO users (username, password, full_name, role)
+VALUES ('bos', 'bos123', 'Pemilik Laundry', 'bos');
+
+-- Karyawan — akses terbatas
+INSERT IGNORE INTO users (username, password, full_name, role)
+VALUES ('karyawan', 'kar123', 'Pegawai Laundry', 'karyawan');
+
+-- Legacy admin (tetap ada untuk kompatibilitas)
+INSERT IGNORE INTO users (username, password, full_name, role)
+VALUES ('admin', 'admin123', 'Administrator', 'bos');
 
 -- Insert sample service packages
 INSERT IGNORE INTO service_packages (package_name, description, price_per_kg, duration_days) 

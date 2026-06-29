@@ -63,7 +63,7 @@ public class ServicePackageDAO {
     
     public List<ServicePackage> findAll() {
         List<ServicePackage> packages = new ArrayList<>();
-        String sql = "SELECT * FROM service_packages ORDER BY package_name";
+        String sql = "SELECT * FROM service_packages ORDER BY id ASC";
         
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement();

@@ -56,7 +56,7 @@ public class UserDAO {
     
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
-        String sql = "SELECT * FROM users ORDER BY created_at DESC";
+        String sql = "SELECT * FROM users ORDER BY id ASC";
         
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement();
@@ -78,7 +78,7 @@ public class UserDAO {
     }
     
     public boolean delete(int id) {
-        String sql = "DELETE FROM users WHERE id = ? AND username != 'admin'"; // Protect admin user
+        String sql = "DELETE FROM users WHERE id = ? AND username NOT IN ('admin','bos','karyawan')"; // Protect default users
         
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

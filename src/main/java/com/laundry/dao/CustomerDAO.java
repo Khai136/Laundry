@@ -65,7 +65,7 @@ public class CustomerDAO {
     
     public List<Customer> findAll() {
         List<Customer> customers = new ArrayList<>();
-        String sql = "SELECT * FROM customers ORDER BY name";
+        String sql = "SELECT * FROM customers ORDER BY id ASC";
         
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement();
@@ -114,12 +114,13 @@ public class CustomerDAO {
     
     public List<Customer> searchByName(String name) {
         List<Customer> customers = new ArrayList<>();
-        String sql = "SELECT * FROM customers WHERE name LIKE ? ORDER BY name";
+        String sql = "SELECT * FROM customers WHERE name LIKE ? OR phone LIKE ? ORDER BY id ASC";
         
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             pstmt.setString(1, "%" + name + "%");
+            pstmt.setString(2, "%" + name + "%");
             ResultSet rs = pstmt.executeQuery();
             
             while (rs.next()) {
